@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fff8eb" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="小日子" />
+  <meta name="description" content="只属于自己的温柔健康记录。" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+  <title>小日子</title>
+</head>
+<body>
+  <div class="app-stage">
+    <main class="app-shell" aria-label="小日子健康记录应用">
+      <header class="statusbar" aria-hidden="true">
+        <span id="clock">9:41</span><span class="dynamic-island"></span><span>本机</span>
+      </header>
+
+      <div class="app-viewport" id="appViewport">
+        <section class="page active" data-page="today" aria-label="今天">
+          <header class="page-head">
+            <div><p class="eyebrow" id="todayLabel"></p><h1>照顾好今天</h1></div>
+            <button class="round-button" id="openSettings" aria-label="打开设置">设</button>
+          </header>
+
+          <article class="water-hero">
+            <div class="hero-copy"><span>今日饮水</span><strong id="todayWater">0</strong><small id="waterGoalLabel">/ 2000 ml</small></div>
+            <div class="water-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+            <div class="water-track"><span id="waterProgress"></span></div>
+            <button class="hero-add" data-open-record="water">记录喝水</button>
+          </article>
+
+          <div class="glance-grid">
+            <article class="glance period-glance">
+              <span class="mini-badge">经</span><div><small>生理期</small><strong id="periodStatus">尚未记录</strong></div>
+            </article>
+            <article class="glance pain-glance">
+              <span class="mini-badge">痛</span><div><small>今日疼痛</small><strong id="painStatus">无记录</strong></div>
+            </article>
+          </div>
+
+          <div class="section-title"><div><p>Quick note</p><h2>快速记一下</h2></div><span>点一下就开始</span></div>
+          <div class="quick-cloud">
+            <button class="quick-item water" data-open-record="water"><span>水</span><strong>喝水</strong><small>容量</small></button>
+            <button class="quick-item stool" data-open-record="stool"><span>大</span><strong>大便</strong><small>形态与感受</small></button>
+            <button class="quick-item urine" data-open-record="urine"><span>小</span><strong>小便</strong><small>颜色与感受</small></button>
+            <button class="quick-item period" data-open-record="period"><span>经</span><strong>生理期</strong><small>经量与疼痛</small></button>
+            <button class="quick-item pain" data-open-record="body_pain"><span>痛</span><strong>普通疼痛</strong><small>非经期疼痛</small></button>
+          </div>
+
+          <div class="section-title compact"><div><p>Today</p><h2>今天的记录</h2></div><span id="todayCount">0 条</span></div>
+          <div class="timeline" id="todayTimeline"></div>
+        </section>
+
+        <section class="page" data-page="record" aria-label="记录">
+          <header class="page-head"><div><p class="eyebrow">轻轻记下</p><h1>身体发生了什么？</h1></div></header>
+          <div class="record-groups">
+            <article class="record-group drink-group">
+              <div class="group-head"><span class="group-mark">水</span><div><h2>喝水</h2><p>记录每一杯的容量</p></div></div>
+              <button class="primary-action" data-open-record="water">添加饮水</button>
+            </article>
+            <article class="record-group toilet-group">
+              <div class="group-head"><span class="group-mark">厕</span><div><h2>如厕</h2><p>大便与小便分开记录</p></div></div>
+              <div class="two-actions"><button data-open-record="stool">大便</button><button data-open-record="urine">小便</button></div>
+            </article>
+            <article class="record-group menstrual-group">
+              <div class="group-head"><span class="group-mark">经</span><div><h2>生理期</h2><p>周期相关记录都在这里</p></div></div>
+              <div class="three-actions"><button data-open-record="period_flow">经量</button><button data-open-record="period_pain">经期疼痛</button><button data-open-record="period_symptom">其他症状</button></div>
+            </article>
+            <article class="record-group pain-group">
+              <div class="group-head"><span class="group-mark">痛</span><div><h2>普通疼痛</h2><p>与生理期疼痛分开</p></div></div>
+              <button class="primary-action" data-open-record="body_pain">记录部位、程度与时长</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="page" data-page="calendar" aria-label="日历">
+          <header class="page-head"><div><p class="eyebrow">按日回看</p><h1>日历</h1></div></header>
+          <article class="calendar-panel">
+            <header class="calendar-header">
+              <button class="round-button small" id="prevMonth" aria-label="上个月">‹</button>
+              <strong id="calendarMonth"></strong>
+              <button class="round-button small" id="nextMonth" aria-label="下个月">›</button>
+            </header>
+            <div class="weekdays" aria-hidden="true"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </article>
+          <div class="section-title compact"><div><p>Selected day</p><h2 id="selectedDateTitle">当天记录</h2></div><span id="selectedDateCount">0 条</span></div>
+          <div class="timeline" id="selectedTimeline"></div>
+        </section>
+
+        <section class="page" data-page="trends" aria-label="趋势">
+          <header class="page-head"><div><p class="eyebrow">慢慢看见规律</p><h1>趋势</h1></div></header>
+          <article class="trend-card water-trend">
+            <div class="trend-head"><div><small>最近 7 天</small><h2>饮水趋势</h2></div><strong id="waterAverage">暂无数据</strong></div>
+            <div class="bar-chart" id="waterChart"></div>
+          </article>
+          <div class="trend-grid">
+            <article class="trend-card small-card"><span class="trend-dot period-dot"></span><small>周期概览</small><strong id="cycleMetric">需要更多记录</strong><p id="cycleDetail">至少记录两个周期后显示。</p></article>
+            <article class="trend-card small-card"><span class="trend-dot pain-dot"></span><small>近 30 天疼痛</small><strong id="painMetric">暂无记录</strong><p id="painDetail">经期疼痛与普通疼痛分开统计。</p></article>
+          </div>
+          <article class="privacy-note"><span>私</span><div><strong>数据只留在这台设备</strong><p>当前版本不会上传健康记录。建议定期在设置里导出备份。</p></div></article>
+        </section>
+      </div>
+
+      <nav class="bottom-nav" aria-label="主导航">
+        <button class="nav-button active" data-nav="today"><span>今</span>今天</button>
+        <button class="nav-button" data-nav="record"><span>记</span>记录</button>
+        <button class="nav-button" data-nav="calendar"><span>历</span>日历</button>
+        <button class="nav-button" data-nav="trends"><span>趋</span>趋势</button>
+      </nav>
+
+      <div class="sheet-backdrop" id="sheetBackdrop" aria-hidden="true">
+        <section class="bottom-sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+          <div class="grabber"></div>
+          <header class="sheet-head"><div><p id="sheetKicker">新增记录</p><h2 id="sheetTitle">记录</h2></div><button class="round-button small" id="closeSheet" aria-label="关闭">×</button></header>
+          <div id="sheetContent"></div>
+        </section>
+      </div>
+
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+      <input type="file" id="importFile" accept="application/json" hidden />
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
