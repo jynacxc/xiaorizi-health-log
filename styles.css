@@ -258,6 +258,47 @@ h1 { font-size: 31px; line-height: 1.15; }
 .primary-action:hover, .two-actions button:hover, .three-actions button:hover { background: rgba(255,255,255,.92); }
 .primary-action:active, .two-actions button:active, .three-actions button:active { transform: scale(.98); }
 
+.period-hub { display: grid; gap: 14px; }
+.period-progress {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 14px;
+  align-items: center;
+  padding: 18px;
+  background: linear-gradient(145deg, var(--paper), var(--rose-soft));
+  border: 1px solid rgba(239,130,111,.14);
+  border-radius: 31px 22px 35px 24px;
+  box-shadow: var(--shadow-soft);
+}
+.period-progress.resting { background: linear-gradient(145deg, var(--paper), #fff1e7); }
+.period-progress-mark {
+  min-height: 68px;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border-radius: 50%;
+  color: var(--coral-deep);
+  background: rgba(255,255,255,.74);
+  font-family: "STKaiti", "KaiTi", serif;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+.period-progress small, .period-progress strong { display: block; }
+.period-progress small { margin-bottom: 4px; color: var(--muted); font-size: 9px; }
+.period-progress strong { margin-bottom: 5px; font-size: 14px; }
+.period-progress p { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.period-actions { display: grid; grid-template-columns: 1.25fr 1fr; gap: 9px; }
+.period-actions .form-submit { padding: 0 14px; }
+.soft-action { min-height: 52px; padding: 0 12px; border: 1px solid var(--line); border-radius: 17px; color: var(--ink); background: var(--cream); cursor: pointer; }
+.soft-action:active { transform: scale(.99); }
+.period-history { display: grid; gap: 7px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--cream); }
+.period-history > span { color: var(--muted); font-size: 9px; }
+.period-history > div { display: flex; align-items: center; justify-content: space-between; min-height: 28px; }
+.period-history strong { font-family: Georgia, "Songti SC", serif; font-size: 12px; font-weight: 500; }
+.period-history small { color: var(--muted); font-size: 10px; }
+.period-date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+
 .calendar-panel { padding: 17px; background: rgba(255,253,248,.82); border: 1px solid var(--line); border-radius: 34px 25px 38px 27px; box-shadow: var(--shadow-soft); }
 .calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .calendar-header strong { font-family: Georgia, "Songti SC", serif; font-size: 17px; font-weight: 500; }
@@ -278,6 +319,11 @@ h1 { font-size: 31px; line-height: 1.15; }
 .calendar-day.outside { color: rgba(128,111,99,.38); }
 .calendar-day.today::after { content: ""; width: 4px; height: 4px; position: absolute; left: 50%; bottom: 5px; border-radius: 50%; background: var(--coral); transform: translateX(-50%); }
 .calendar-day.has-data { background: var(--gold-soft); }
+.calendar-day.in-period { color: var(--coral-deep); background: var(--rose-soft); border-radius: 13px; }
+.calendar-day.in-period.has-data { box-shadow: inset 0 -3px 0 var(--apricot); }
+.calendar-day.in-period.period-start { border-radius: 50% 13px 13px 50%; }
+.calendar-day.in-period.period-end { border-radius: 13px 50% 50% 13px; }
+.calendar-day.in-period.period-start.period-end { border-radius: 50%; }
 .calendar-day.selected { color: #fff; background: var(--coral); box-shadow: 0 8px 18px rgba(239,130,111,.28); }
 .calendar-day.selected::after { background: white; }
 
@@ -362,7 +408,7 @@ h1 { font-size: 31px; line-height: 1.15; }
 .record-form { display: grid; gap: 16px; }
 .field { display: grid; gap: 7px; }
 .field > label, .field > span { color: var(--muted); font-size: 11px; }
-.field input[type="number"], .field input[type="text"], .field input[type="datetime-local"], .field textarea, .field select {
+.field input[type="number"], .field input[type="text"], .field input[type="date"], .field input[type="datetime-local"], .field textarea, .field select {
   width: 100%;
   min-height: 48px;
   padding: 12px 14px;
@@ -439,6 +485,7 @@ h1 { font-size: 31px; line-height: 1.15; }
   .app-viewport { padding-left: 15px; padding-right: 15px; }
   .three-actions { grid-template-columns: 1fr; }
   .choice-row { --columns: 2 !important; }
+  .period-actions, .period-date-grid { grid-template-columns: 1fr; }
 }
 
 @media (prefers-reduced-motion: reduce) {
