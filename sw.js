@@ -1,4 +1,4 @@
-const CACHE_NAME = 'little-days-v2';
+const CACHE_NAME = 'little-days-v3';
 const APP_ASSETS = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './icon.svg'];
 
 self.addEventListener('install', (event) => {
@@ -23,3 +23,4 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => caches.match('./index.html')))
   );
 });
+
