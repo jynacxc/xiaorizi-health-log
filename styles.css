@@ -294,9 +294,15 @@ h1 { font-size: 31px; line-height: 1.15; }
 .soft-action:active { transform: scale(.99); }
 .period-history { display: grid; gap: 7px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 22px; background: var(--cream); }
 .period-history > span { color: var(--muted); font-size: 9px; }
-.period-history > div { display: flex; align-items: center; justify-content: space-between; min-height: 28px; }
+.period-history-row { display: flex; align-items: center; justify-content: space-between; min-height: 44px; gap: 10px; }
+.period-history-row > div { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
 .period-history strong { font-family: Georgia, "Songti SC", serif; font-size: 12px; font-weight: 500; }
 .period-history small { color: var(--muted); font-size: 10px; }
+.period-delete, .period-delete-current { border: 0; color: #a25a52; background: transparent; cursor: pointer; }
+.period-delete { min-height: 44px; padding: 0 4px; flex: 0 0 auto; font-size: 10px; }
+.period-delete-current { min-height: 40px; margin: -5px auto 0; padding: 0 12px; font-size: 10px; }
+.period-delete:active, .period-delete-current:active { opacity: .62; }
+.period-delete:focus-visible, .period-delete-current:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; border-radius: 10px; }
 .period-date-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 
 .calendar-panel { padding: 17px; background: rgba(255,253,248,.82); border: 1px solid var(--line); border-radius: 34px 25px 38px 27px; box-shadow: var(--shadow-soft); }
@@ -491,3 +497,4 @@ h1 { font-size: 31px; line-height: 1.15; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
