@@ -268,7 +268,28 @@
   function periodHistoryMarkup() {
     const recent = state.periods.filter((period) => period.endDate).slice(0, 3);
     if (!recent.length) return '';
-    return `<div class="period-history"><span>最近记录</span>${recent.map((period) => `<div><strong>${escapeHTML(shortDay(period.startDate))}–${escapeHTML(shortDay(period.endDate))}</strong><small>${periodLength(period)} 天</small></div>`).join('')}</div>`;
+    return `<div class="period-history"><span>最近记录</span>${recent.map((period) => `<div class="period-history-row"><div><strong>${escapeHTML(shortDay(period.startDate))}–${escapeHTML(shortDay(period.endDate))}</strong><small>${periodLength(period)} 天</small></div><button type="button" class="period-delete" data-delete-period="${escapeHTML(period.id)}">删除这次</button></div>`).join('')}</div>`;
+  }
+
+  function deletePeriod(periodId) {
+    const period = periodById(periodId);
+    if (!period) return;
+    const range = period.endDate ? `${shortDay(period.startDate)}–${shortDay(period.endDate)}` : `${shortDay(period.startDate)} 开始`;
+    if (!window.confirm(`确定删除 ${range} 的整次经期吗？\n这次经期关联的每日记录也会删除，其他健康记录不受影响。`)) return;
+    const endDate = periodEndKey(period);
+    const periodTypes = new Set(['period_day', 'period_flow', 'period_pain', 'period_symptom']);
+    state.periods = state.periods.filter((item) => item.id !== period.id);
+    state.entries = state.entries.filter((entry) => {
+      if (!periodTypes.has(entry.type)) return true;
+      if (entry.payload?.periodId === period.id) return false;
+      if (entry.payload?.periodId) return true;
+      const day = dateKey(entry.datetime);
+      return day < period.startDate || day > endDate;
+    });
+    saveState();
+    renderAll();
+    openRecord('period');
+    showToast('这次经期已删除，可以重新记录');
   }
 
   function openRecord(type) {
@@ -281,7 +302,8 @@
         <div class="period-actions">
           <button class="form-submit" data-period-choice="period_day">记录今天</button>
           <button class="soft-action" data-period-action="end">结束这次经期</button>
-        </div>` : `<article class="period-progress resting">
+        </div>
+        <button type="button" class="period-delete-current" data-delete-period="${escapeHTML(current.id)}">删除这次经期并重新记录</button>` : `<article class="period-progress resting">
           <span class="period-progress-mark">待开始</span>
           <div><small>把经期当作一段过程</small><strong>目前没有进行中的经期</strong><p>开始后，App 会连续计算天数并在日历中标记。</p></div>
         </article>
@@ -305,118 +327,7 @@
     elements.sheetContent.querySelectorAll('[data-fill-amount]').forEach((button) => {
       button.addEventListener('click', () => {
         const amount = document.getElementById('waterAmount');
-        if (amount) amount.value = button.dataset.fillAmount;
-      });
-    });
-    elements.sheetContent.querySelectorAll('[data-range]').forEach((range) => {
-      range.addEventListener('input', () => { range.nextElementSibling.textContent = range.value; });
-    });
-    const form = elements.sheetContent.querySelector('[data-record-form]');
-    const periodLogDate = elements.sheetContent.querySelector('#periodLogDate');
-    if (form && periodLogDate) {
-      periodLogDate.addEventListener('change', () => {
-        const current = activePeriod();
-        const existing = state.entries.find((entry) => entry.type === 'period_day' && entry.payload?.periodId === current?.id && dateKey(entry.datetime) === periodLogDate.value);
-        const data = existing?.payload || {};
-        const flow = data.flow || '中等';
-        form.querySelectorAll('[name="flow"]').forEach((input) => { input.checked = input.value === flow; });
-        const painRange = form.querySelector('[name="painLevel"]');
-        if (painRange) {
-          painRange.value = Number(data.painLevel) || 0;
-          painRange.nextElementSibling.textContent = painRange.value;
-        }
-        const symptoms = Array.isArray(data.symptoms) ? data.symptoms : [];
-        form.querySelectorAll('[name="symptoms"]').forEach((input) => { input.checked = symptoms.includes(input.value); });
-        const note = form.querySelector('[name="note"]');
-        if (note) note.value = data.note || '';
-      });
-    }
-    if (form) form.addEventListener('submit', handleRecordSubmit);
-  }
-
-  function periodDayPayload(formData, periodId) {
-    return {
-      periodId,
-      flow: formData.get('flow') || '中等',
-      painLevel: Number(formData.get('painLevel')) || 0,
-      symptoms: formData.getAll('symptoms'),
-      note: formData.get('note') || ''
-    };
-  }
-
-  function upsertPeriodDay(period, day, formData) {
-    const existing = state.entries.find((entry) => entry.type === 'period_day' && entry.payload?.periodId === period.id && dateKey(entry.datetime) === day);
-    if (existing) {
-      existing.datetime = dayISO(day);
-      existing.payload = periodDayPayload(formData, period.id);
-      existing.updatedAt = new Date().toISOString();
-      return false;
-    }
-    state.entries.push({
-      id: createId(),
-      type: 'period_day',
-      datetime: dayISO(day),
-      payload: periodDayPayload(formData, period.id),
-      createdAt: new Date().toISOString()
-    });
-    return true;
-  }
-
-  function finishPeriodChange(message) {
-    state.periods.sort((a, b) => b.startDate.localeCompare(a.startDate));
-    state.entries.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
-    if (saveState()) {
-      closeSheet();
-      renderAll();
-      showToast(message);
-    }
-  }
-
-  function handleRecordSubmit(event) {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const type = form.dataset.recordForm;
-    const formData = new FormData(form);
-    const payload = Object.fromEntries(formData.entries());
-    if (type === 'period_start') {
-      const startDate = formData.get('startDate');
-      if (!validDayKey(startDate) || startDate > dateKey()) return showToast('请选择有效的开始日期');
-      if (activePeriod()) return showToast('已有一段经期正在持续');
-      if (periodsOverlap(startDate, dateKey())) return showToast('这段日期与已有经期重叠');
-      const period = { id: createId(), startDate, endDate: null, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-      state.periods.push(period);
-      upsertPeriodDay(period, startDate, formData);
-      finishPeriodChange('这次经期已开始');
-      return;
-    }
-    if (type === 'period_day') {
-      const period = activePeriod();
-      const logDate = formData.get('logDate');
-      if (!period) return showToast('请先开始一次经期');
-      if (!validDayKey(logDate) || logDate < period.startDate || logDate > dateKey()) return showToast('日期需在本次经期范围内');
-      const created = upsertPeriodDay(period, logDate, formData);
-      period.updatedAt = new Date().toISOString();
-      finishPeriodChange(created ? '今天的经期记录已保存' : '今天的经期记录已更新');
-      return;
-    }
-    if (type === 'period_end') {
-      const period = activePeriod();
-      const endDate = formData.get('endDate');
-      if (!period) return showToast('没有进行中的经期');
-      const latestLog = state.entries.filter((entry) => entry.type === 'period_day' && entry.payload?.periodId === period.id).map((entry) => dateKey(entry.datetime)).sort().pop();
-      if (!validDayKey(endDate) || endDate < period.startDate || endDate > dateKey()) return showToast('请选择有效的结束日期');
-      if (latestLog && endDate < latestLog) return showToast(`结束日期不能早于 ${shortDay(latestLog)} 的记录`);
-      period.endDate = endDate;
-      period.updatedAt = new Date().toISOString();
-      finishPeriodChange(`这次经期共 ${periodLength(period)} 天`);
-      return;
-    }
-    if (type === 'period_backfill') {
-      const startDate = formData.get('startDate');
-      const endDate = formData.get('endDate');
-      if (!validDayKey(startDate) || !validDayKey(endDate) || startDate > endDate || endDate > dateKey()) return showToast('请检查开始和结束日期');
-      if (periodsOverlap(startDate, endDate)) return showToast('这段日期与已有经期重叠');
-      state.periods.push({ id: createId(), startDate, endDate, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
+        if (amount) amo…1371 tokens truncated…endDate, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() });
       finishPeriodChange(`已补记 ${diffDays(endDate, startDate) + 1} 天`);
       return;
     }
@@ -743,6 +654,12 @@
     const periodChoice = event.target.closest('[data-period-choice]');
     if (periodChoice) openRecord(periodChoice.dataset.periodChoice);
 
+    const deletePeriodButton = event.target.closest('[data-delete-period]');
+    if (deletePeriodButton) {
+      deletePeriod(deletePeriodButton.dataset.deletePeriod);
+      return;
+    }
+
     const dayButton = event.target.closest('[data-calendar-date]');
     if (dayButton) {
       state.selectedDate = dayButton.dataset.calendarDate;
@@ -775,3 +692,4 @@
     navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 })();
+
