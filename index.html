@@ -49,7 +49,7 @@
             <button class="quick-item water" data-open-record="water"><span>水</span><strong>喝水</strong><small>容量</small></button>
             <button class="quick-item stool" data-open-record="stool"><span>大</span><strong>大便</strong><small>形态与感受</small></button>
             <button class="quick-item urine" data-open-record="urine"><span>小</span><strong>小便</strong><small>颜色与感受</small></button>
-            <button class="quick-item period" data-open-record="period"><span>经</span><strong>生理期</strong><small>经量与疼痛</small></button>
+            <button class="quick-item period" data-open-record="period"><span>经</span><strong>生理期</strong><small>开始、每天与结束</small></button>
             <button class="quick-item pain" data-open-record="body_pain"><span>痛</span><strong>普通疼痛</strong><small>非经期疼痛</small></button>
           </div>
 
@@ -69,8 +69,8 @@
               <div class="two-actions"><button data-open-record="stool">大便</button><button data-open-record="urine">小便</button></div>
             </article>
             <article class="record-group menstrual-group">
-              <div class="group-head"><span class="group-mark">经</span><div><h2>生理期</h2><p>周期相关记录都在这里</p></div></div>
-              <div class="three-actions"><button data-open-record="period_flow">经量</button><button data-open-record="period_pain">经期疼痛</button><button data-open-record="period_symptom">其他症状</button></div>
+              <div class="group-head"><span class="group-mark">经</span><div><h2>生理期</h2><p id="periodGroupStatus">记录开始、每日变化和结束</p></div></div>
+              <button class="primary-action" data-open-record="period">查看本次经期</button>
             </article>
             <article class="record-group pain-group">
               <div class="group-head"><span class="group-mark">痛</span><div><h2>普通疼痛</h2><p>与生理期疼痛分开</p></div></div>
@@ -131,4 +131,3 @@
   <script src="app.js"></script>
 </body>
 </html>
-
